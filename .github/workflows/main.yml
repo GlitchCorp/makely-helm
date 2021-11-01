@@ -1,13 +1,40 @@
 name: Deploy
 on:
   repository_dispatch:
-    types: [my-event]
+    types: [Deploy]
+
+env:
+  PROJECT_ID: ${{ secrets.GKE_PROJECT }}
+  GKE_CLUSTER: ${{ secrets.GKE_CLUSTER_NAME }}
+  GKE_ZONE: us-central1-c
+    
 jobs:
-  build:
-    name: Run API
-    runs-on: ubuntu-latest
+  deployment:
+    environment: production
+    runs-on: 'ubuntu-latest'
     steps:
-      - name: Build API
-        run: |
-          echo "Build API"
-          sleep 10s
+
+    - uses: google-github-actions/setup-gcloud@94337306dda8180d967a56932ceb4ddcf01edae7
+      with:
+        service_account_key: ${{ secrets.GKE_SA_KEY }}
+        project_id: ${{ secrets.GKE_PROJECT }}
+
+    - uses: google-github-actions/get-gke-credentials@fb08709ba27618c31c09e014e1d8364b02e5042e
+      with:
+        cluster_name: ${{ env.GKE_CLUSTER }}
+        location: ${{ env.GKE_ZONE }}
+        credentials: ${{ secrets.GKE_SA_KEY }}
+
+    - uses: actions/checkout@v1
+
+    - name: 'Deploy'
+      uses: 'deliverybot/helm@v1'
+      with:
+        release: 'nginx'
+        namespace: 'default'
+        chart: 'app'
+        token: '${{ github.token }}'
+        values: |
+          name: foobar
+        value-files:
+          - values.yaml
