@@ -2,7 +2,9 @@ name: Deploy
 on:
   repository_dispatch:
     types: [Deploy]
-
+  push:
+    branches:
+      - master
 env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
   GKE_CLUSTER: ${{ secrets.GKE_CLUSTER_NAME }}
@@ -13,6 +15,8 @@ jobs:
     environment: production
     runs-on: 'ubuntu-latest'
     steps:
+    - name: Checkout
+      uses: actions/checkout@v2
 
     - uses: google-github-actions/setup-gcloud@94337306dda8180d967a56932ceb4ddcf01edae7
       with:
@@ -25,16 +29,7 @@ jobs:
         location: ${{ env.GKE_ZONE }}
         credentials: ${{ secrets.GKE_SA_KEY }}
 
-    - uses: actions/checkout@v1
-
-    - name: 'Deploy'
-      uses: 'deliverybot/helm@v1'
+    - name: Deploy
+      uses: WyriHaximus/github-action-helm3@v2
       with:
-        release: 'nginx'
-        namespace: 'default'
-        chart: 'app'
-        token: '${{ github.token }}'
-        values: |
-          name: foobar
-        value-files:
-          - values.yaml
+        exec: helm upgrade makely makely
