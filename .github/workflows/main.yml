@@ -1,9 +1,7 @@
 name: Deploy
 on:
   repository_dispatch:
-  push:
-    branches:
-      - master
+    types: [my-event]
 jobs:
   build:
     name: Run API
