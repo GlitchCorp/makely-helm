@@ -32,4 +32,4 @@ jobs:
     - name: Deploy
       uses: WyriHaximus/github-action-helm3@v2
       with:
-        exec: helm upgrade makely makely
+        exec: helm upgrade makely makely --set image.repository=${{ github.event.client_payload.image }} --set image.tag=${{ github.event.client_payload.tag }} --set env.secretKey=${{ secrets.SECRET_KEY }} --set env.secretKey=${{ secrets.DB_CONNECTION }}
