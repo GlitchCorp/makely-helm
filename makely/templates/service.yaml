@@ -6,6 +6,7 @@ metadata:
     {{- include "makely.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
+  loadBalancerIP: "34.133.4.218"
   ports:
     - port: {{ .Values.service.port }}
       targetPort: http
